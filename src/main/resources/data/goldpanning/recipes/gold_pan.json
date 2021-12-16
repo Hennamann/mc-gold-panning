@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern":
+  [
+    "   ",
+    "xxx",
+    " x "
+  ],
+  "key":
+  {
+    "x":
+    {
+      "tag": "forge:ingots/iron"
+    }
+  },
+  "result":
+  {
+    "item": "goldpanning:gold_pan",
+    "count": 1
+  }
+}
