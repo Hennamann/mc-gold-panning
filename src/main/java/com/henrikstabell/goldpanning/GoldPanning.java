@@ -4,7 +4,7 @@ import com.henrikstabell.goldpanning.item.ItemDiamondFragment;
 import com.henrikstabell.goldpanning.item.ItemGoldDust;
 import com.henrikstabell.goldpanning.item.ItemGoldPan;
 import com.henrikstabell.goldpanning.item.ItemIronDust;
-import net.minecraft.item.Item;
+import net.minecraft.world.item.Item;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.eventbus.api.IEventBus;

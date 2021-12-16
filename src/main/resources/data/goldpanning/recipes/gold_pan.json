@@ -3,14 +3,14 @@
   "pattern":
   [
     "   ",
-    "xxx",
+    "x x",
     " x "
   ],
   "key":
   {
     "x":
     {
-      "tag": "forge:ingots/iron"
+      "item": "minecraft:copper_ingot"
     }
   },
   "result":

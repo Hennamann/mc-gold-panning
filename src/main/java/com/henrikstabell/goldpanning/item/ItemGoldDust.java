@@ -1,13 +1,13 @@
 package com.henrikstabell.goldpanning.item;
 
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemGroup;
+import net.minecraft.world.item.CreativeModeTab;
+import net.minecraft.world.item.Item;
 
 public class ItemGoldDust extends Item {
 
     public ItemGoldDust() {
         super(new Properties()
-                .tab(ItemGroup.TAB_MATERIALS)
+                .tab(CreativeModeTab.TAB_MATERIALS)
         );
     }
 }

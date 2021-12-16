@@ -1,22 +1,29 @@
 package com.henrikstabell.goldpanning.item;
 
 import com.henrikstabell.goldpanning.GoldPanning;
-import net.minecraft.block.*;
 import net.minecraft.client.Minecraft;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.item.*;
-import net.minecraft.loot.*;
+import net.minecraft.core.BlockPos;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.tags.FluidTags;
-import net.minecraft.util.ActionResult;
-import net.minecraft.util.Hand;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.RayTraceResult;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.world.World;
-import net.minecraft.world.server.ServerWorld;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.CreativeModeTab;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.UseAnim;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.storage.loot.LootContext;
+import net.minecraft.world.level.storage.loot.LootTable;
+import net.minecraft.world.level.storage.loot.parameters.LootContextParamSets;
+import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.Vec3;
 
 import java.util.List;
 
@@ -26,7 +33,7 @@ public class ItemGoldPan extends Item {
 
     public ItemGoldPan() {
         super(new Properties()
-                .tab(ItemGroup.TAB_TOOLS)
+                .tab(CreativeModeTab.TAB_TOOLS)
                 .stacksTo(1)
                 .durability(125)
                 .setNoRepair()
@@ -34,8 +41,8 @@ public class ItemGoldPan extends Item {
     }
 
     @Override
-    public UseAction getUseAnimation(ItemStack itemStack) {
-        return UseAction.BLOCK;
+    public UseAnim getUseAnimation(ItemStack stack) {
+        return UseAnim.BLOCK;
     }
 
     @Override
@@ -46,9 +53,9 @@ public class ItemGoldPan extends Item {
     private BlockState getCurrentLookedAtBlock() {
         Minecraft instance = Minecraft.getInstance();
 
-        if(instance.hitResult.getType() != RayTraceResult.Type.BLOCK) {
+        if(instance.hitResult.getType() != BlockHitResult.Type.BLOCK) {
 
-            Vector3d blockVector = instance.hitResult.getLocation();
+            Vec3 blockVector = instance.hitResult.getLocation();
 
             double bX = blockVector.x();
             double bY = blockVector.y();
@@ -72,28 +79,28 @@ public class ItemGoldPan extends Item {
     }
 
     @Override
-    public void onUseTick(World world, LivingEntity entity, ItemStack stack, int tick) {
+    public void onUseTick(Level world, LivingEntity entity, ItemStack stack, int tick) {
         if (entity.getItemInHand(entity.getUsedItemHand()).getDamageValue() > 0 && !world.isClientSide()) {
             entity.getItemInHand(entity.getUsedItemHand()).hurtAndBreak(0, entity, e -> e.broadcastBreakEvent(entity.getUsedItemHand()));
         }
     }
 
     @Override
-    public ActionResult<ItemStack> use(World world, PlayerEntity player, Hand mainHand) {
+    public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand mainHand) {
         ItemStack stack = player.getItemInHand(mainHand);
-        if (!world.isClientSide) {
-            LootContext.Builder lootCtxb = (new LootContext.Builder((ServerWorld) world)).withParameter(LootParameters.ORIGIN, player.position()).withParameter(LootParameters.TOOL, stack).withRandom(this.random).withLuck((float)player.getLuck());
-            if (player.isCrouching() && player.isInWater() && !player.isEyeInFluid(FluidTags.WATER) && getCurrentLookedAtBlock().getBlock() == Blocks.WATER.getBlock()) {
+        if (!level.isClientSide) {
+            LootContext.Builder lootCtxb = (new LootContext.Builder((ServerLevel) level)).withParameter(LootContextParams.ORIGIN, player.position()).withParameter(LootContextParams.TOOL, stack).withRandom(player.getRandom()).withLuck((float)player.getLuck());
+            if (player.isCrouching() && player.isInWater() && !player.isEyeInFluid(FluidTags.WATER) && getCurrentLookedAtBlock().getBlock() == Blocks.WATER.defaultBlockState().getBlock()) {
                 player.startUsingItem(mainHand);
-                stack.hurt(1, player.getRandom(), (ServerPlayerEntity) player);
-                if (player.getCommandSenderWorld() instanceof ServerWorld) {
+                stack.hurt(1, player.getRandom(), (ServerPlayer) player);
+                if (player.getCommandSenderWorld() instanceof ServerLevel) {
                     LootTable loot = player.level.getServer().getLootTables().get(PANNING_LOOT_TABLE);
-                    List<ItemStack> list = loot.getRandomItems(lootCtxb.create(LootParameterSets.EMPTY));
+                    List<ItemStack> list = loot.getRandomItems(lootCtxb.create(LootContextParamSets.EMPTY));
                     for(ItemStack lootItemStack : list) {
-                        player.inventory.add(lootItemStack);
+                        player.getInventory().add(lootItemStack);
                     }
                 }
-            } return ActionResult.success(player.getItemInHand(mainHand));
-        } else return ActionResult.fail(stack);
+            } return InteractionResultHolder.success(player.getItemInHand(mainHand));
+        } else return InteractionResultHolder.fail(stack);
     }
 }
