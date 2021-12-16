@@ -47,7 +47,7 @@ public class ItemGoldPan extends Item {
 
     @Override
     public int getUseDuration(ItemStack itemStack) {
-        return 20;
+        return 30;
     }
 
     private BlockState getCurrentLookedAtBlock() {

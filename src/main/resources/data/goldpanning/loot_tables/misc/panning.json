@@ -35,7 +35,8 @@
         {
           "type": "minecraft:item",
           "weight": 97,
-          "name": "minecraft:air"
+          "name": "minecraft:air",
+          "_comment": "Padding to avoid getting an item at every right click."
         }
       ]
     }
